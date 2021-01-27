@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 
 namespace e_mobile_shop.Areas.Identity.Data
 {
@@ -14,7 +17,7 @@ namespace e_mobile_shop.Areas.Identity.Data
         public string? CMND { get; set; }
 
         [PersonalData]
-        [Column(TypeName = "nvarchar(100)")]
+        [Column(TypeName ="nvarchar(100)")]
         public string? HoTen { get; set; }
 
         [PersonalData]

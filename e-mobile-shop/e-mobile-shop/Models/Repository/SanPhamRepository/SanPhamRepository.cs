@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace e_mobile_shop.Models.Repository.SanPhamRepository
 {
@@ -19,11 +20,11 @@ namespace e_mobile_shop.Models.Repository.SanPhamRepository
                 return context.SanPham.Find(id);
             }
         }
-
+ 
 
         public List<SanPham> GetSanPhamsByIdStatus(string id, string status)
         {
-            using (var context = new ClientDbContext())
+            using(var context = new ClientDbContext())
             {
                 try
                 {
@@ -76,7 +77,7 @@ namespace e_mobile_shop.Models.Repository.SanPhamRepository
 
         public List<ThongSo> GetThongSo(string Id)
         {
-            return context.ThongSo.Where(x => x.MaLoai == Id).ToList();
+            return context.ThongSo.Where(x=>x.MaLoai==Id).ToList();
         }
 
         public string GetLoaiSp(string id)
@@ -86,20 +87,20 @@ namespace e_mobile_shop.Models.Repository.SanPhamRepository
 
         public int CountSanPham(string loaiSp)
         {
-            return context.SanPham.Where(x => x.LoaiSp == loaiSp).ToList().Count;
+            return context.SanPham.Where(x=>x.LoaiSp==loaiSp).ToList().Count;
         }
 
         public void UpdateSoLuong(string maSp, int? soLuong)
         {
-            context.SanPham.Find(maSp).SoLuong = context.SanPham.Find(maSp).SoLuong - soLuong;
-            context.SaveChanges();
+             context.SanPham.Find(maSp).SoLuong =context.SanPham.Find(maSp).SoLuong - soLuong;
+                context.SaveChanges();
         }
 
         public AnhSanPham GetAnhSanPham(string maSp)
         {
-            return context.AnhSanPham.Where(x => x.MaSp == maSp).FirstOrDefault();
+            return context.AnhSanPham.Where(x=>x.MaSp == maSp).FirstOrDefault();
         }
 
-
+       
     }
 }

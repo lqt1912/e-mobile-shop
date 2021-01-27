@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace e_mobile_shop.Models.Repository
 {
@@ -37,7 +39,7 @@ namespace e_mobile_shop.Models.Repository
                 SqlDependency dependency = new SqlDependency(cmd);
                 a = true;
                 dependency.OnChange += new OnChangeEventHandler(dbChangeNotification);
-
+               
                 var reader = cmd.ExecuteReader();
 
                 while (reader.Read())
@@ -47,25 +49,25 @@ namespace e_mobile_shop.Models.Repository
                         MaDh = reader["MaDH"].ToString(),
 
                     };
-
+                      
                     DonHangs.Add(DonHang);
                 }
-
+               
             }
-
+            
             return DonHangs;
         }
 
         private void dbChangeNotification(object sender, SqlNotificationEventArgs e)
         {
             var DonHangs = new List<DonHang>();
-            int num1, num2;
+            int num1,num2;
             using (SqlConnection conn = new SqlConnection(connectionString))
             {
                 conn.Open();
 
                 SqlDependency.Start(connectionString);
-
+                
                 string commandText = "select MaDH, TinhTrangDH from dbo.DonHang";
 
                 SqlCommand cmd = new SqlCommand(commandText, conn);
@@ -88,21 +90,21 @@ namespace e_mobile_shop.Models.Repository
                         num1++;
                     else if (reader["TinhTrangDH"].ToString() == "2")
                         num2++;
-                    DonHangs.Add(DonHang);
+                        DonHangs.Add(DonHang);
                 }
                 newID = DonHangs.LastOrDefault().MaDh;
 
             };
-
+           
             if (e.Type == SqlNotificationType.Change && e.Info == SqlNotificationInfo.Update)
             {
-                _context.Clients.All.SendAsync("updateDonHangs", num1.ToString(), num2.ToString());
+                _context.Clients.All.SendAsync("updateDonHangs", num1.ToString(),num2.ToString());
             }
             else
             {
                 if (e.Type == SqlNotificationType.Change && e.Info == SqlNotificationInfo.Insert && a)
                 {
-                    _context.Clients.All.SendAsync("refreshDonHangs", newID, num1.ToString(), num2.ToString());
+                    _context.Clients.All.SendAsync("refreshDonHangs", newID, num1.ToString(),num2.ToString());
                     a = false;
                 }
                 else a = true;
@@ -151,7 +153,7 @@ namespace e_mobile_shop.Models.Repository
 
         public List<DonHang> GetDonHangs()
         {
-            using (var context = new ClientDbContext())
+            using(var context = new ClientDbContext())
             {
                 return context.DonHang.ToList();
             }
@@ -164,7 +166,7 @@ namespace e_mobile_shop.Models.Repository
 
         public DonHang GetDonHangById(string id)
         {
-            using (var context = new ClientDbContext())
+            using(var context = new ClientDbContext())
             {
                 return context.DonHang.Where(x => x.MaDh == id).ToList().FirstOrDefault();
             }
@@ -172,7 +174,7 @@ namespace e_mobile_shop.Models.Repository
 
         public List<ChiTietDonHang> GetChiTietDonHangsByMaDH(string madh)
         {
-            using (var context = new ClientDbContext())
+            using(var context = new ClientDbContext())
             {
                 return context.ChiTietDonHang.Where(x => x.MaDh == madh).ToList();
             }
@@ -180,7 +182,7 @@ namespace e_mobile_shop.Models.Repository
 
         public TrangThaiDonHang GetTTDH(string id)
         {
-            using (var context = new ClientDbContext())
+           using(var context = new ClientDbContext())
             {
                 return context.TrangThaiDonHang.Find(Int32.Parse(id));
             }
@@ -188,7 +190,7 @@ namespace e_mobile_shop.Models.Repository
 
         public void Update(DonHang dh)
         {
-            using (var context = new ClientDbContext())
+           using(var context = new ClientDbContext())
             {
                 context.DonHang.Update(dh);
                 context.SaveChanges();
@@ -197,7 +199,7 @@ namespace e_mobile_shop.Models.Repository
 
         public List<TrangThaiDonHang> GetTrangThaiDonHangs()
         {
-            using (var context = new ClientDbContext())
+            using(var context = new ClientDbContext())
             {
                 return context.TrangThaiDonHang.ToList();
             }
@@ -205,23 +207,22 @@ namespace e_mobile_shop.Models.Repository
 
         public IQueryable<DonHang> GetDonHangsByMaKh(string maKh, string type)
         {
+           
+                if(!String.IsNullOrEmpty(type))
+                {
+                    var result = from s in dbContext.DonHang where s.MaKh ==maKh  && s.TinhTrangDh == int.Parse(type) select s; 
 
-            if (!String.IsNullOrEmpty(type))
-            {
-                var result = from s in dbContext.DonHang where s.MaKh == maKh && s.TinhTrangDh == int.Parse(type) select s;
-
-                return result;
-            }
-            else
-            {
-                var result = from s in dbContext.DonHang where s.MaKh == maKh select s;
-                return result;
-            }
+                    return result;
+                } else 
+                {
+                    var result = from s in dbContext.DonHang where s.MaKh ==maKh select s;
+                    return result;
+                }
         }
 
         public int SoDonHang()
         {
-            using (var context = new ClientDbContext())
+            using(var context = new ClientDbContext())
             {
                 return context.DonHang.Count();
             }
@@ -229,7 +230,7 @@ namespace e_mobile_shop.Models.Repository
 
         public void AddDonHang(DonHang donHang)
         {
-            using (var context = new ClientDbContext())
+            using(var context = new ClientDbContext())
             {
                 context.DonHang.Add(donHang);
                 context.SaveChanges();
@@ -238,7 +239,7 @@ namespace e_mobile_shop.Models.Repository
 
         public string GetTrangThaiDonHang(string id)
         {
-            using (var context = new ClientDbContext())
+            using(var context = new ClientDbContext())
             {
                 return context.TrangThaiDonHang.Find(int.Parse(id)).TenTrangThai;
             }
@@ -246,16 +247,16 @@ namespace e_mobile_shop.Models.Repository
 
         public void AddChiTietDonHang(ChiTietDonHang chiTietDonHang)
         {
-            using (var context = new ClientDbContext())
-            {
-                context.ChiTietDonHang.Add(chiTietDonHang);
-                context.SaveChanges();
-            }
+           using(var context = new ClientDbContext())
+           {
+               context.ChiTietDonHang.Add(chiTietDonHang);
+               context.SaveChanges();
+           }
         }
 
         public List<ChiTietDonHang> GetChiTiets()
         {
-            using (var context = new ClientDbContext())
+            using(var context=new ClientDbContext() )
             {
                 return context.ChiTietDonHang.ToList();
             }

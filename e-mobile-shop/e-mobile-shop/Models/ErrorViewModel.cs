@@ -1,3 +1,5 @@
+using System;
+
 namespace e_mobile_shop.Models
 {
     public class ErrorViewModel

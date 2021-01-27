@@ -1,21 +1,25 @@
-﻿using e_mobile_shop.Core.Repository;
+﻿using e_mobile_shop.Models;
 using e_mobile_shop.Models.Repository.MobileShopRepository;
-using e_mobile_shop.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace e_mobile_shop.Controllers.Components
 {
-    public class BannerViewComponent : ViewComponent
+    public class BannerViewComponent:ViewComponent
     {
-        private readonly IBannerKhuyenMaiService _bannerKhuyenMaiService;
-        public BannerViewComponent( IBannerKhuyenMaiService bannerKhuyenMaiService)
+        private readonly IMobileShopRepository _context;
+        public  BannerViewComponent(IMobileShopRepository context)
         {
-            _bannerKhuyenMaiService = bannerKhuyenMaiService;
+          _context = context;
         }
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            return View(await _bannerKhuyenMaiService.GetBannerKhuyenMais());
-        }
+        
+            return View(await _context.GetBannerKhuyenMais());
+        }   
     }
 }
