@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using e_mobile_shop.Models.Repository.EmailRepository;
 
 namespace e_mobile_shop.Areas.Identity.Pages.Account
 {
@@ -19,11 +20,13 @@ namespace e_mobile_shop.Areas.Identity.Pages.Account
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IEmailSender _emailSender;
+        private readonly IEmailService emailService;
 
-        public ForgotPasswordModel(UserManager<AppUser> userManager, IEmailSender emailSender)
+        public ForgotPasswordModel(UserManager<AppUser> userManager, IEmailSender emailSender, IEmailService emailService)
         {
             _userManager = userManager;
             _emailSender = emailSender;
+            this.emailService = emailService;
         }
 
         [BindProperty]
@@ -56,11 +59,17 @@ namespace e_mobile_shop.Areas.Identity.Pages.Account
                     pageHandler: null,
                     values: new { area = "Identity", code },
                     protocol: Request.Scheme);
+                await emailService.SendEmailAsync(new MailRequest()
+                {
+                     Body = $"Khôi phục mật khẩu bằng cách <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>nhấn vào đây</a>.",
+                      Subject ="Khôi phục mật khẩu",
+                       ToEmail = Input.Email
 
-                await _emailSender.SendEmailAsync(
-                    Input.Email,
-                    "Khôi phục mật khẩu ",
-                    $"Khôi phục mật khẩu bằng cách <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>nhấn vào đây</a>.");
+                });
+                //await _emailSender.SendEmailAsync(
+                //    Input.Email,
+                //    "Khôi phục mật khẩu ",
+                //    $"Khôi phục mật khẩu bằng cách <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>nhấn vào đây</a>.");
 
                 return RedirectToPage("./ForgotPasswordConfirmation");
             }

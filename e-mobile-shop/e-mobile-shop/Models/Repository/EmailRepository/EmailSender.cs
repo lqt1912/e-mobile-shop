@@ -21,10 +21,7 @@ namespace e_mobile_shop.Models.Services
                 SendGridUser = optionsAccessor.SendGridUser,
                 SendGridKey = optionsAccessor.SendGridKey
             };
-
-
         }
-
 
         public AuthMessageSenderOptions Options { get; set; } //set only via Secret Manager
 

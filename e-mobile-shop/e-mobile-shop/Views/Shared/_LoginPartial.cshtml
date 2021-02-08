@@ -4,7 +4,7 @@
 @inject SignInManager<AppUser> SignInManager
 @inject UserManager<AppUser> UserManager
 
-@if (SignInManager.IsSignedIn(User))
+    @if (SignInManager.IsSignedIn(User))
 {
     <li class="text-center border-right text-white">
         <a id="manage" class="text-white" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">@UserManager.GetUserName(User)</a>
@@ -26,5 +26,5 @@ else
     <li class="text-center  text-white">
         <a class="nav-link text-white" id="login" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a>
     </li>
-   
+
 }

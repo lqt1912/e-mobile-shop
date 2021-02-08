@@ -46,7 +46,7 @@ namespace e_mobile_shop.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            public string Email { get; set; }
+            public string Username { get; set; }
 
             //[Required]
             //public string Username { get; set; }
@@ -88,10 +88,11 @@ namespace e_mobile_shop.Areas.Identity.Pages.Account
             {
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+
+                var result = await _signInManager.PasswordSignInAsync(Input.Username, Input.Password, Input.RememberMe, lockoutOnFailure: false);
 
 
-                //var s = DataAccess.context.AspNetUsers.Where(x=>x.UserName==Input.Username).SingleOrDefault().Email;
+               // var s = DataAccess.context.AspNetUsers.Where(x=>x.UserName==Input.Username).SingleOrDefault().Email;
 
                 //var result = await _signInManager.PasswordSignInAsync(s, Input.Password, Input.RememberMe, lockoutOnFailure: false);
 

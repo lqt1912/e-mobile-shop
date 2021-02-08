@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using e_mobile_shop.Models.Repository;
 using e_mobile_shop.Models.Repository.MobileShopRepository;
 using e_mobile_shop.Models.Repository.SanPhamRepository;
+using e_mobile_shop.Models.Repository.EmailRepository;
 
 namespace e_mobile_shop.Controllers
 {
@@ -25,12 +26,14 @@ namespace e_mobile_shop.Controllers
         private readonly IDonHangRepository _repository;
         private readonly IMobileShopRepository _shopRepo;
         private readonly ISanPhamRepository _sanPhamRepository;
-        public GioHangController( IDonHangRepository repository, IMobileShopRepository shopRepo, ISanPhamRepository sp)
+        IEmailService emailService;
+        public GioHangController(IDonHangRepository repository, IMobileShopRepository shopRepo, ISanPhamRepository sp, IEmailService emailService)
 
         {
             _repository = repository;
             _shopRepo = shopRepo;
             _sanPhamRepository = sp;
+            this.emailService = emailService;
         }
         [Route("xem-gio-hang")]
         public IActionResult XemGioHang(IFormCollection fc)
@@ -275,7 +278,7 @@ namespace e_mobile_shop.Controllers
 
         [HttpPost]
         [Route("thanh-toan")]
-        public IActionResult CheckOut(IFormCollection fc,[FromServices] IEmailSender mailSender)
+        public async Task<IActionResult> CheckOut(IFormCollection fc,[FromServices] IEmailSender mailSender)
         {
             var dh = new DonHang();
 
@@ -323,7 +326,6 @@ namespace e_mobile_shop.Controllers
             dh.TinhTrangDh = 1;
             //dh.Diachi = fc["DiaChi"];
             _repository.AddDonHang(dh);
-
            // _repository.NotifyDonHang();
             var content = System.IO.File.ReadAllText("GioHang.html");
             content = content.Replace("{{Hoten}}", dh.HoTen);
@@ -358,16 +360,16 @@ namespace e_mobile_shop.Controllers
             content = content.Replace("{{sdt}}", dh.Dienthoai);
             content = content.Replace("{{giamgia}}", dh.GiamGia.Value.ToString("N0"));
             content = content.Replace("{{thanhtoan}}", (- dh.GiamGia.Value + dh.Tongtien.Value).ToString("N0"));
-            //var Option = new AuthMessageSenderOptions
-            //{
-            //    SendGridKey = context.Parameters.Find("2").Value,
-            //    SendGridUser = context.Parameters.Find("1").Value
-            //};
 
-            //var mailSender = new EmailSender(Option);
+            MailRequest request = new MailRequest()
+            {
+                Body = $"{WebUtility.HtmlDecode(content)}",
+                Subject = "Thông tin đặt hàng",
+                ToEmail = dh.Email
+            };
+            await emailService.SendEmailAsync(request);
 
-
-            mailSender.SendEmailAsync(dh.Email, "Chi tiết đơn hàng ", $"{WebUtility.HtmlDecode(content)}");
+            //mailSender.SendEmailAsync(dh.Email, "Chi tiết đơn hàng ", $"{WebUtility.HtmlDecode(content)}");
 
             HttpContext.Session.DeleteAllSession();
 

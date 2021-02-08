@@ -16,7 +16,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using e_mobile_shop.Models;
-
+using e_mobile_shop.Models.Repository.EmailRepository;
 
 namespace e_mobile_shop.Areas.Identity.Pages.Account
 {
@@ -27,16 +27,18 @@ namespace e_mobile_shop.Areas.Identity.Pages.Account
         private readonly UserManager<AppUser> _userManager;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        IEmailService emailService;
         public RegisterModel(
             UserManager<AppUser> userManager,
             SignInManager<AppUser> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender)
+            IEmailSender emailSender, IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            this.emailService = emailService;
         }
 
         [BindProperty]
@@ -166,7 +168,13 @@ namespace e_mobile_shop.Areas.Identity.Pages.Account
 
                         content = content.Replace("{{callbackurl}}", $"Vui lòng xác nhận tài khoản bằng cách <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>nhấn vào đây </a>.");
 
-                        await _emailSender.SendEmailAsync(Input.Email, "Email thông tin tài khoản ", $"{System.Net.WebUtility.HtmlDecode(content)}");
+//                        await _emailSender.SendEmailAsync(Input.Email, "Email thông tin tài khoản ", $"{System.Net.WebUtility.HtmlDecode(content)}");
+                        await emailService.SendEmailAsync(new MailRequest()
+                        {
+                         ToEmail = Input.Email,
+                         Subject = "Thông tin tài khoản",
+                          Body = $"{System.Net.WebUtility.HtmlDecode(content)}"
+                        });
 
                         if (_userManager.Options.SignIn.RequireConfirmedAccount)
                         {

@@ -8,6 +8,7 @@ using e_mobile_shop.Data;
 using e_mobile_shop.Models;
 using e_mobile_shop.Models.Repository;
 using e_mobile_shop.Models.Repository.DataExcuteRepository;
+using e_mobile_shop.Models.Repository.EmailRepository;
 using e_mobile_shop.Models.Repository.MobileShopRepository;
 using e_mobile_shop.Models.Repository.SanPhamRepository;
 using e_mobile_shop.Models.Services;
@@ -49,6 +50,8 @@ namespace e_mobile_shop
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddControllersWithViews().AddNewtonsoftJson(options =>  options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
             services.AddSession();
+            services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
+
             services.Configure<IdentityOptions>(options =>
             {
                 // Default Password settingseShopDbContext
@@ -61,7 +64,20 @@ namespace e_mobile_shop
 
                 options.SignIn.RequireConfirmedEmail = true;
             });
-            services.AddAuthentication().AddGoogle(options =>
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                // Cookie settings
+                options.Cookie.HttpOnly = true;
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(5);
+
+                options.LoginPath = "/Identity/Account/Login";
+                options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                options.SlidingExpiration = true;
+            });
+
+            services.AddAuthentication()
+            .AddGoogle(options =>
             {
                 //IConfigurationSection googleAuthNSection =
                 //    Configuration.GetSection("Authentication:Google");
@@ -87,12 +103,12 @@ namespace e_mobile_shop
                 option.SendGridKey = new ClientDbContext().Parameters.Find("2").Value;
             });
 
-
             services.AddSignalR();
             services.AddTransient<IDonHangRepository, DonHangRepository>();
             services.AddTransient<IMobileShopRepository, MobileShopRepository>();
             services.AddTransient<ISanPhamRepository, SanPhamRepository>();
             services.AddTransient<IDataAccess, DataAccess>();
+            services.AddTransient<IEmailService, EmailService>();
             services.AddRouting(options => options.LowercaseUrls = true);
         }
 
@@ -110,9 +126,9 @@ namespace e_mobile_shop
             app.UseStaticFiles();
             app.UseRouting();
             app.UseSession();
+
             app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.UseEndpoints(endpoints =>
             {

@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace e_mobile_shop.Controllers
 {
+    [Authorize]
     public class SanPhamController : Controller
     {
         private readonly IMobileShopRepository _shopRepo;
